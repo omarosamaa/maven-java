@@ -1,21 +1,30 @@
 pipeline {
     agent any
-
+    tools{
+        maven 'maven'
+    }
     stages {
-        stage('Build') {
+        stage('build jar') {
             steps {
-                echo 'building the app'
+                echo 'building the jar'
+                sh 'mvn package'
             }
         }
-        stage('test') {
+        stage('making the image and pushing to docker') {
             steps {
-                echo 'testing the app'
-            }
-        }
-        stage('package') {
-            steps {
-                echo 'packaging the app'
+                echo 'building the jar'
+                sh 'docker build -t omar64/nana_project:2.3'
+                withCredentials([usernamePassword(credentialsId: 'DockerHub', usernameVariable: 'user', passwordVariable: 'pass')]) {
+                    sh 'docker login -u user -p pass'
+                }
+                sh 'docker push omar64/nana_project:2.3'
             }
         }        
+        stage('deployment') {
+            steps {
+                echo 'deploying'
+            }
+        }
+        
     }
 }
