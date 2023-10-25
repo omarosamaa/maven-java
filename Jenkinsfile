@@ -13,7 +13,7 @@ pipeline {
         stage('making the image and pushing to docker') {
             steps {
                 echo 'building the jar'
-                sh 'docker build -t omar64/nana_project:2.3'
+                sh 'docker build -t omar64/nana_project:2.3 .'
                 withCredentials([usernamePassword(credentialsId: 'DockerHub', usernameVariable: 'user', passwordVariable: 'pass')]) {
                     sh 'docker login -u user -p pass'
                 }
