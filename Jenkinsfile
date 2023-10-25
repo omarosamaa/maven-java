@@ -1,38 +1,30 @@
-def gv
-
 pipeline {
     agent any
+    tools{
+        maven 'maven'
+    }
     stages {
-        stage("init") {
+        stage('build jar') {
             steps {
-                script {
-                    gv = load "script.groovy"
-                }
+                echo 'building the jar'
+                sh 'mvn package'
             }
         }
-        stage("build jar") {
+        stage('making the image and pushing to docker') {
             steps {
-                script {
-                    echo "building jar"
-                    //gv.buildJar()
+                echo 'building the jar'
+                sh 'docker build -t omar64/nana_project:2.3'
+                withCredentials([usernamePassword(credentialsId: 'DockerHub', usernameVariable: 'user', passwordVariable: 'pass')]) {
+                    sh 'docker login -u user -p pass'
                 }
+                sh 'docker push omar64/nana_project:2.3'
+            }
+        }        
+        stage('deployment') {
+            steps {
+                echo 'deploying'
             }
         }
-        stage("build image") {
-            steps {
-                script {
-                    echo "building image"
-                    //gv.buildImage()
-                }
-            }
-        }
-        stage("deploy") {
-            steps {
-                script {
-                    echo "deploying"
-                    //gv.deployApp()
-                }
-            }
-        }
-    }   
+        
+    }
 }
